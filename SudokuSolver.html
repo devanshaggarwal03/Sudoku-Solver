@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sudoku Solver</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; text-align: center; }
+        .container { margin-top: 50px; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); display: inline-block; }
+        h2 { color: #333; }
+        table { border-collapse: collapse; margin: auto; }
+        td { width: 50px; height: 50px; text-align: center; border: 2px solid black; font-size: 20px; }
+        input { width: 100%; height: 100%; text-align: center; font-size: 20px; border: none; background-color: transparent; }
+        .bold-border { border: 3px solid black important; }
+        button { margin-top: 20px; padding: 10px 20px; font-size: 18px; background-color: #28a745; color: white; border: none; border-radius: 5px; cursor: pointer; }
+        button:hover { background-color: #218838; }
+        footer { margin-top: 30px; padding: 10px; background-color: #333; color: white; font-size: 14px; position: fixed; bottom: 0; width: 100%; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>Sudoku Solver</h2>
+        <table id="sudoku-board"></table>
+        <br>
+        <button onclick="solveSudoku()">Solve</button>
+    </div>
+
+    <footer>
+        &copy; 2025 Sudoku Solver | Created by Devansh Aggarwal
+    </footer>
+
+    <script>
+        function createBoard() {
+            const table = document.getElementById("sudoku-board");
+            for (let i = 0; i < 9; i++) {
+                let row = table.insertRow();
+                for (let j = 0; j < 9; j++) {
+                    let cell = row.insertCell();
+                    let input = document.createElement("input");
+                    input.type = "number";
+                    input.min = 1;
+                    input.max = 9;
+                    input.value = "";
+                    cell.appendChild(input);
+                    if (i % 3 === 2) cell.classList.add("bold-border");
+                    if (j % 3 === 2) cell.classList.add("bold-border");
+                }
+            }
+        }
+
+        function isSafe(board, row, col, num) {
+            for (let x = 0; x < 9; x++) {
+                if (board[row][x] === num || board[x][col] === num) {
+                    return false;
+                }
+            }
+            let startRow = row - row % 3, startCol = col - col % 3;
+            for (let i = 0; i < 3; i++) {
+                for (let j = 0; j < 3; j++) {
+                    if (board[i + startRow][j + startCol] === num) {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function solve(board) {
+            for (let row = 0; row < 9; row++) {
+                for (let col = 0; col < 9; col++) {
+                    if (board[row][col] === 0) {
+                        for (let num = 1; num <= 9; num++) {
+                            if (isSafe(board, row, col, num)) {
+                                board[row][col] = num;
+                                if (solve(board)) {
+                                    return true;
+                                } else {
+                                    board[row][col] = 0;
+                                }
+                            }
+                        }
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+
+        function solveSudoku() {
+            let table = document.getElementById("sudoku-board");
+            let board = [];
+            for (let i = 0; i < 9; i++) {
+                board.push([]);
+                for (let j = 0; j < 9; j++) {
+                    let value = table.rows[i].cells[j].firstChild.value;
+                    board[i].push(value ? parseInt(value) : 0);
+                }
+            }
+            if (solve(board)) {
+                for (let i = 0; i < 9; i++) {
+                    for (let j = 0; j < 9; j++) {
+                        table.rows[i].cells[j].firstChild.value = board[i][j];
+                    }
+                }
+            } else {
+                alert("Cannot Solve");
+            }
+        }
+
+        createBoard();
+    </script>
+</body>
+</html>
